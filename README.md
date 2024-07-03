@@ -1,1 +1,1 @@
-# schedule_parser
+# schedule-parser
