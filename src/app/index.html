@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload and Base64 Encode</title>
+</head>
+<body>
+    <h1>Upload a JPEG Image</h1>
+    <form id="upload-form">
+        <input type="file" id="image-input" accept="image/jpeg">
+        <button type="submit">Upload</button>
+    </form>
+    <pre id="response-output"></pre>
+
+    <script src="http://cdn.jsdelivr.net/gh/nwcell/ics.js/ics.min.js"></script>
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const fileInput = document.getElementById('image-input');
+            const file = fileInput.files[0];
+
+            if (file && file.type === 'image/jpeg') {
+                const reader = new FileReader();
+
+                reader.onload = async function(e) {
+                    const base64Image = e.target.result.split(',')[1]; // Extract base64 data
+                    // const response = await fetch('https://7brdfeocmf.execute-api.eu-west-1.amazonaws.com/prod/parse/', {
+                    //     method: 'POST',
+                    //     headers: {
+                    //         'Content-Type': 'application/json',
+                    //     },
+                    //     body: JSON.stringify({ Base64_image: base64Image })
+                    // });
+                    const response = {ok : true}
+                    const jsonResponse = {events: [{name: "test-event"}]}
+                    if (response.ok) {
+                        //const jsonResponse = await response.json();
+                        const events = jsonResponse.events; // Assuming the response has an array of events
+                        const cal = ics();
+                        jsonResponse.events.forEach(event => {
+                            cal.addEvent(
+                                event.name  ,
+                                "todo",
+                                "todo",
+                                '25/7/2024',
+                                '25/7/2024'
+                            );
+                        });
+
+                        const icsFile = cal.build();
+                        const blob = new Blob([icsFile], { type: 'text/calendar' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'events.ics';
+                        a.click();
+                        URL.revokeObjectURL(url);  // Clean up the object URL
+                    } else {
+                        document.getElementById('response-output').textContent = 'Failed to upload image';
+                    }
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please upload a JPEG image.');
+            }
+        });
+    </script>
+</body>
+</html>
