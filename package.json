@@ -7,8 +7,9 @@
   "scripts": {
     "watch": "tsc -w",
     "test": "jest",
-    "build": "cd src/lambda && GOARCH=amd64 GOOS=linux go build -o bootstrap main.go && zip deployment.zip bootstrap",
-    "cdk": "cdk"
+    "build": "rimraf build && cd src && GOARCH=amd64 GOOS=linux go build -o ../build/bootstrap main.go && zip ../build/deployment.zip ../build/bootstrap",
+    "cdk": "cdk",
+    "deploy": "cdk deploy"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
@@ -24,6 +25,7 @@
     "@aws-cdk/aws-lambda-go": "^1.204.0",
     "aws-cdk-lib": "2.147.1",
     "constructs": "^10.0.0",
+    "rimraf": "^5.0.7",
     "source-map-support": "^0.5.21"
   }
 }

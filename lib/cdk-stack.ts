@@ -12,7 +12,7 @@ export class CdkStack extends cdk.Stack {
     const goLambda = new lambda.Function(this, 'Schedule-Parser', {
       runtime: lambda.Runtime.PROVIDED_AL2023,
       handler: 'bootstrap', // handler is the name of the executable
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../src/lambda/deployment.zip')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../build/deployment.zip')),
       environment: {
         OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
       },
