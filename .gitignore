@@ -1,1 +1,15 @@
+*.js
+!jest.config.js
+*.d.ts
+node_modules
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+
+# build files
+/build
+
+# local files
 .DS_Store
+launch.json
