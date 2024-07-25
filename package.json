@@ -7,7 +7,7 @@
   "scripts": {
     "watch": "tsc -w",
     "test": "jest",
-    "build": "rimraf build && cd src && GOARCH=amd64 GOOS=linux go build -o ../build/bootstrap main.go && zip ../build/deployment.zip ../build/bootstrap",
+    "build": "rimraf build && cd src && GOARCH=amd64 GOOS=linux go build -o ../build/bootstrap && zip -j ../build/deployment.zip ../build/bootstrap",
     "cdk": "cdk",
     "deploy": "cdk deploy"
   },

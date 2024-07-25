@@ -22,7 +22,10 @@ export class CdkStack extends cdk.Stack {
     // Define the API Gateway REST API
     const api = new apigateway.RestApi(this, 'Schedule-Parser-API', {
       restApiName: 'Schedule Parser Service',
-      description: 'This service serves parses schedules from images to JSON.'
+      description: 'This service serves parses schedules from images to JSON.',
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS
+      }
     });
 
      // Integrate the Lambda function with the API Gateway

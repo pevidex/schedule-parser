@@ -79,12 +79,25 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
     }
 	
 	rawJSON := chatGPTResponse.Choices[0].Message.Content
-	start := strings.Index(rawJSON, "```json\n") + len("```json\n")
-	rawJSON = rawJSON[start:]
+
+	// Removing the prefix and suffix
+	prefix := "```json"
+	suffix := "```"
+
+	if strings.HasPrefix(rawJSON, prefix) && strings.HasSuffix(rawJSON, suffix) {
+		// Remove the prefix
+		rawJSON = strings.TrimPrefix(rawJSON, prefix)
+		// Remove the suffix
+		rawJSON = strings.TrimSuffix(rawJSON, suffix)
+	} 
 
     return Response{
         StatusCode: http.StatusOK,
-        Headers:    map[string]string{"Content-Type": "application/json"},
+        Headers:    map[string]string{
+			"Content-Type": "application/json", 
+            "Access-Control-Allow-Headers" : "Content-Type",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS,POST"},
         Body:       rawJSON,
     }, nil
 }
