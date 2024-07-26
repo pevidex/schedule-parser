@@ -16,7 +16,7 @@ export class CdkStack extends cdk.Stack {
       environment: {
         OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
       },
-      timeout: cdk.Duration.seconds(30),
+      timeout: cdk.Duration.seconds(90),
     });
 
     // Define the API Gateway REST API
