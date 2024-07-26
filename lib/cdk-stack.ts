@@ -48,22 +48,20 @@ export class CdkStack extends cdk.Stack {
         limit: 50,
         period: apigateway.Period.DAY,
       },
+      apiStages: [{
+        stage: api.deploymentStage,
+      }],
     });
 
     plan.addApiKey(apiKey);
 
     // Integrate the Lambda function with the API Gateway
     const getLambdaIntegration = new apigateway.LambdaIntegration(goLambda, {
-      requestTemplates: { "application/json": '{"statusCode": 200}' },
+      requestTemplates: { "application/json": '{"statusCode": 200}' }
     });
 
     // Define the API endpoint and method
     const item = api.root.addResource("parse");
-    item.addMethod("POST", getLambdaIntegration); // POST /item
-
-    // Associate the method with the usage plan
-    plan.addApiStage({
-      stage: api.deploymentStage,
-    });
+    item.addMethod("POST", getLambdaIntegration, {apiKeyRequired: true}); // POST /item
   }
 }
