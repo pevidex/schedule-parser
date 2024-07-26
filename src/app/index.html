@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parse a schedule</title>
 </head>
+
 <body>
     <h1>Upload a schedule Image</h1>
     <form id="upload-form">
@@ -19,7 +21,66 @@
 
     <script src="http://cdn.jsdelivr.net/gh/nwcell/ics.js/ics.min.js"></script>
     <script>
-        document.getElementById('upload-form').addEventListener('submit', async function(event) {
+        const daysOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+        function getDescriptionForEvent(event) {
+            return `${event.name} happening on ${event.location} on ${event.day} at ${event.time}`
+        }
+        function getDayForWeekDay(weekday) {
+            const now = new Date();
+            const currentDayIndex = now.getDay();
+            const targetDayIndex = daysOfWeek.indexOf(weekday);
+
+            let daysUntilNextWeekday;
+
+            if (targetDayIndex >= currentDayIndex) {
+                daysUntilNextWeekday = targetDayIndex - currentDayIndex;
+            } else {
+                daysUntilNextWeekday = 7 - (currentDayIndex - targetDayIndex);
+            }
+
+            const nextWeekday = new Date();
+            nextWeekday.setDate(now.getDate() + daysUntilNextWeekday);
+            nextWeekday.setHours(0, 0, 0, 0);  // Set time to midnight
+
+            return nextWeekday;
+        }
+        function getDateForEvent(event, start = true) {
+            // TODO handle edge cases
+            let date;
+            if (daysOfWeek.includes(event.day)) {
+                date = getDayForWeekDay(event.day)
+            }
+            else {
+                date = new Date(event.day);
+            }
+            if (event.time) {
+                const regex = /(\d{2}):(\d{2})-(\d{2}):(\d{2})/;
+                // Match the pattern against the time string
+                const match = event.time.match(regex);
+
+                if (match) {
+                    const startHour = match[1];
+                    const startMinute = match[2];
+                    const endHour = match[3];
+                    const endMinute = match[4];
+                    if (start) {
+                        date.setHours(startHour);
+                        date.setMinutes(startMinute);
+                    }
+                    else {
+                        date.setHours(endHour);
+                        date.setMinutes(endMinute);
+                        if (endHour < startHour) {
+                            date.setDate(date.getDate() + 1);
+                        }
+                    }
+                } else {
+                    console.log("The string does not match the expected format.");
+                }
+            }
+            return date;
+        }
+        document.getElementById('upload-form').addEventListener('submit', async function (event) {
             event.preventDefault();
             const apiKey = document.getElementById('api-key-input').value;
 
@@ -33,28 +94,61 @@
             if (file && file.type === 'image/jpeg') {
                 const reader = new FileReader();
 
-                reader.onload = async function(e) {
+                reader.onload = async function (e) {
                     const base64Image = e.target.result.split(',')[1]; // Extract base64 data
-                    // const response = await fetch('https://7brdfeocmf.execute-api.eu-west-1.amazonaws.com/prod/parse/', {
-                    //     method: 'POST',
-                    //     headers: {
-                    //         'Content-Type': 'application/json',
-                    //     },
-                    //     body: JSON.stringify({ Base64_image: base64Image })
-                    // });
-                    const response = {ok : true}
-                    const jsonResponse = {events: [{name: "test-event"}]}
+                    // const jsonResponse = {
+                    //     "events": [
+                    //         {
+                    //             "name": "Will Gustin",
+                    //             "day": "wednesday",
+                    //             "time": "18:00-19:00",
+                    //             "stage": "Apuro"
+                    //         },
+                    //         {
+                    //             "name": "Dasha Rush",
+                    //             "day": "friday",
+                    //             "time": "23:00-02:00",
+                    //             "stage": "Praia"
+                    //         },
+                    //         {
+                    //             "name": "Bruno J",
+                    //             "day": "saturday",
+                    //             "time": "18:00-19:00",
+                    //             "stage": "Cochilo"
+                    //         },
+                    //         {
+                    //             "name": "Oliver Weiss",
+                    //             "day": "sunday",
+                    //             "time": "16:00-18:00",
+                    //             "stage": "Praia"
+                    //         },
+                    //         {
+                    //             "name": "Renato Ratier",
+                    //             "day": "friday",
+                    //             "time": "22:00-04:00",
+                    //             "stage": "Floresta"
+                    //         }
+                    //     ]
+                    // }
+                    const response = await fetch('https://7brdfeocmf.execute-api.eu-west-1.amazonaws.com/prod/parse/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-api-key': apiKey,
+                        },
+                        body: JSON.stringify({ Base64_image: base64Image })
+                    });
                     if (response.ok) {
-                        //const jsonResponse = await response.json();
+                        const jsonResponse = await response.json();
                         const events = jsonResponse.events; // Assuming the response has an array of events
                         const cal = ics();
                         jsonResponse.events.forEach(event => {
                             cal.addEvent(
-                                event.name  ,
-                                "todo",
-                                "todo",
-                                '25/7/2024',
-                                '25/7/2024'
+                                event.name,
+                                getDescriptionForEvent(event),
+                                event.stage,
+                                getDateForEvent(event),
+                                getDateForEvent(event, false)
                             );
                         });
 
