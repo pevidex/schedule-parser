@@ -28,6 +28,28 @@ export class CdkStack extends cdk.Stack {
       }
     });
 
+    // Create an API key
+    const apiKey = api.addApiKey('schedule-parser-user-api-key', {
+      apiKeyName: 'ScheduleParserUserAPIKey',
+      description: 'Schedule parser API key for normal usage',
+    });
+
+    // Create a usage plan and associate it with the API key
+    const plan = api.addUsagePlan('UsagePlan', {
+      name: 'BasicUsagePlan',
+      description: 'A usage plan for my API',
+      throttle: {
+        rateLimit: 2,
+        burstLimit: 3,
+      },
+      quota: {
+        limit: 50,
+        period: apigateway.Period.DAY,
+      },
+    });
+
+    plan.addApiKey(apiKey);
+    
      // Integrate the Lambda function with the API Gateway
      const getLambdaIntegration = new apigateway.LambdaIntegration(goLambda, {
       requestTemplates: { 'application/json': '{"statusCode": 200}' }
