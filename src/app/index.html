@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Upload and Base64 Encode</title>
+    <title>Parse a schedule</title>
 </head>
 <body>
-    <h1>Upload a JPEG Image</h1>
+    <h1>Upload a schedule Image</h1>
     <form id="upload-form">
         <input type="file" id="image-input" accept="image/jpeg">
-        <button type="submit">Upload</button>
+        <br></br>
+        <label for="api-key-input">API key:</label>
+        <input type="text" id="api-key-input" name="Add your api key" accept="text">
+        <br></br>
+        <button type="submit">Generate</button>
     </form>
     <pre id="response-output"></pre>
 
@@ -17,6 +21,11 @@
     <script>
         document.getElementById('upload-form').addEventListener('submit', async function(event) {
             event.preventDefault();
+            const apiKey = document.getElementById('api-key-input').value;
+
+            if (!apiKey) {
+                alert('Please set your API key.');
+            }
 
             const fileInput = document.getElementById('image-input');
             const file = fileInput.files[0];
