@@ -18,7 +18,7 @@ func GenerateGPTPromptPaylod(imageStr string) string {
 		"content": [
 			{
 				"type": "text",
-				"text": "Is this image a schedule? If no, return just 'No' with no more text. If it is, return a full json file containing the list of all events in the following format: {\"events\": [{\"name\": \"event_name\", \"time\": \"20:00-21:00\", \"stage\": \"stage_name\"}]} Don't add any more text besides this json file."
+				"text": "Is this image a schedule? If no, return just 'No' with no more text. If it is, return a full json file containing the list of all events in the following format: {\"events\": [{\"name\": \"event_name\", \"day\": \"wednesday\", \"time\": \"20:00-21:00\", \"stage\": \"stage_name\"}]} Don't add any more text besides this json file. 'day' can be a week day (ex: 'monday') or a day in the calendar like '2/2/2025'"
 			},
 			{
 				"type": "image_url",
