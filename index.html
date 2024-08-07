@@ -5,12 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parse a schedule</title>
+    <style>
+        #loading {
+            display: none;
+            color: blue;
+        }
+    </style>
 </head>
 
 <body>
     <h1>Upload a schedule Image</h1>
+    <div id="loading">Loading, please wait...</div>
     <form id="upload-form">
-        <input type="file" id="image-input" accept="image/jpeg">
+        <input type="file" id="image-input" accept="image/png, image/jpeg">
         <br></br>
         <label for="api-key-input">API key:</label>
         <input type="text" id="api-key-input" name="Add your api key" accept="text">
@@ -51,7 +58,8 @@
                 date = getDayForWeekDay(event.day)
             }
             else {
-                date = new Date(event.day);
+                let dateSplit = event.day.split("/");
+                date = new Date(`${dateSplit[1]}/${dateSplit[0]}/${dateSplit[2]}`); // switch day and month to be compatible with JS Date
             }
             if (event.time) {
                 const regex = /(\d{2}):(\d{2})-(\d{2}):(\d{2})/;
@@ -89,9 +97,10 @@
             }
 
             const fileInput = document.getElementById('image-input');
+            const loadingIndicator = document.getElementById('loading');
             const file = fileInput.files[0];
 
-            if (file && file.type === 'image/jpeg') {
+            if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
                 const reader = new FileReader();
 
                 reader.onload = async function (e) {
@@ -131,6 +140,7 @@
                     //     ]
                     // }
                     try {
+                        loadingIndicator.style.display = 'block';
                         const response = await fetch('https://7brdfeocmf.execute-api.eu-west-1.amazonaws.com/prod/parse/', {
                             method: 'POST',
                             headers: {
@@ -166,6 +176,8 @@
                         };
                     } catch (error) {
                         document.getElementById('response-output').textContent = `Error: ${error}`;
+                    } finally {
+                        loadingIndicator.style.display = 'none';
                     }
                 };
 
